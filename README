@@ -1,0 +1,88 @@
+SuxPanel 0.4
+--------------
+
+SuxPanel provides a simple and easy to use panel that sits atop your
+screen, that lets you:
+
+	- Start your programs
+	- Switch between them
+	- Control your sound card's volume
+	- Organize and manage your virtual desktops
+	- Manage your clipboard
+	- See the time and date and pop up a calendar
+	- And probably more ;)
+
+It's currently meant only for those who don't care about editing
+configuration files by hand. :)
+
+
+New in this Release
+-------------------
+
+showdesktop:
+	This applet allows you to hide application windows and show the
+	desktop.
+
+rox-swallow:
+	This plugin allows the usage of ROX Panel applets under SuxPanel; 
+	I wrote it initially to use the SystemTray applet available at:
+
+		http://home.comcast.net/~andyhanton/software
+
+	But someone wrote a native plugin, available at:
+
+		http://www.hardline.org
+
+	I'm not including it yet as it's split in multiple files, and it
+	would break my current lazy Makefile. ;)
+
+
+	Anyway, to use this plugin, you'll need to pass an argument to it:
+	the path to the ROX applet's AppletRun executable; see the bottom
+	of this file for more information on passing parameters to plugins.
+
+mount:
+	This plugins allows you mount/umount mountpoints and execute a
+	command on success.
+
+	Written by Jens Askengren (jensus@linux.nu).
+
+mail:
+	Displays your mailbox (/var/spool/...) status.
+
+	Written by Giuseppe Coviello (slash@crux-it.org)
+
+- - -
+
+/*
+ * SuxPanel Plugin Template
+ * Version 0.4
+ */
+
+#include "suxpanel.h"
+
+void sux_init(SuxModule *sm, gchar *args)
+{
+	GtkLabel *lbl;
+
+	lbl = gtk_label_new((args && strlen(args)) ? args : "Hello, world!");
+	gtk_widget_show(lbl);
+
+	sm->widget = lbl;
+}
+
+void sux_fini(SuxModule *sm)
+{
+	gtk_widget_destroy(sm->widget);
+}
+
+const gchar *sux_name(void)
+{
+	return "Hello World!";
+}
+
+- - -
+
+To pass arguments to applets:
+
+l=/path/to/the/applet (argument list)

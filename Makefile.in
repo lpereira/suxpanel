@@ -1,0 +1,45 @@
+# ----------------------------------------------------------------------------
+
+CC = gcc
+CFLAGS = -Wall $(GTK_CFLAGS) -O2 -g
+
+# ----------------------------------------------------------------------------
+
+OBJECTS = suxpanel.o about.o settings.o gtkmisc.o
+MODULES = apps.so appbar.so clock.so mixer.so sux-ws.so \
+	  sux-tasklist-applet.so clipman.so weather.so rox-swallow.so \
+	  mount.so mail.so showdesktop.so
+
+all:	$(OBJECTS) $(MODULES)
+	$(CC) $(CFLAGS) -o suxpanel -Wl,-export-dynamic $(OBJECTS) $(GTK_LIBS) $(GTK_FLAGS)
+
+%.so: %.c 
+	@echo "[01;32mcompile module: $< ($@)[0m"
+	$(CC) $(CFLAGS) -o $@ -shared $< $(GTK_CFLAGS) $(GTK_LIBS) \
+            $(WNCK_LIBS) $(WNCK_CFLAGS)
+
+clean:
+	rm -rf *~ *.o *.so suxpanel
+
+install:	all
+	mkdir -p ${DESTDIR}/usr/bin
+	cp suxpanel ${DESTDIR}/usr/bin/suxpanel
+	mkdir -p ${DESTDIR}/usr/share/suxpanel/plugins
+	cp -rv *.so ${DESTDIR}/usr/share/suxpanel/plugins
+	mkdir -p ${DESTDIR}/usr/share/suxpanel/pixmaps
+	cp -rv pixmaps/* ${DESTDIR}/usr/share/suxpanel/pixmaps
+	chmod -R 755 ${DESTDIR}/usr/share/suxpanel
+
+dist-clean:	clean
+	rm -rf Makefile debian/suxpanel/ config.h
+
+package:	dist-clean
+	@echo "Creating tar.gz..."
+	cd .. && tar czf $(PACKAGE).tar.gz $(PACKAGE)/* && cd $(PACKAGE)
+	@echo "Creating tar.bz2..."
+	cd .. && tar cjf $(PACKAGE).tar.bz2 $(PACKAGE)/* && cd $(PACKAGE)
+
+deb:	dist-clean
+	@echo "Creating deb..."
+	dpkg-buildpackage -rfakeroot -k${USER}
+
